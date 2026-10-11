@@ -1,0 +1,39 @@
+[project]
+name = "doublebracket"
+version = "0.2.0"
+description = "Discrete variational integrators for double-bracket dissipation (DDB methods), with the rigid body and a lattice of coupled rigid bodies as examples"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "jaxtyping>=0.3.9",
+    "kaleido>=1.2.0",  # PNG export of the plotly figures
+    "matplotlib>=3.10.7",
+    "numpy>=2.3.5",
+    "plotly>=6.6.0",
+    "scipy>=1.16.3",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "pytest-regressions>=2.8.3",
+    "ruff>=0.15",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+addopts = "--no-header"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+# F722: jaxtyping shape strings; C408: dict(...) is the usual style for plotly options
+ignore = ["F722", "C408"]
+
+[tool.ruff.lint.per-file-ignores]
+"doublebracket/array_types.py" = ["F821"]  # jaxtyping shape strings such as "n" look like undefined names

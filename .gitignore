@@ -1,0 +1,25 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+.benchmarks/
+
+# Ignore the .vscode folder
+.vscode/*
+
+# But allow these shared config files
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Ignore the output in plots/, except the saved h-sweep summaries (the sweeps take hours)
+plots/*/*
+!plots/*/hsweep_summary.pkl
