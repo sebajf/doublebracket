@@ -1,6 +1,6 @@
-# doublebracket
+# Discrete double bracket dissipation
 
-Discrete double-bracket (DDB) integrators: the code for the paper
+Discrete double-bracket (DDB) integrators: code for the paper
 
 > A. Bloch, S. J. Ferraro, D. Martín de Diego, S. Bharadwaj, *Discrete variational calculus for double-bracket dissipation*, [arXiv:2604.26049](https://arxiv.org/abs/2604.26049).
 
@@ -8,7 +8,7 @@ The DDB methods integrate Euler–Poincaré (equivalently, Lie–Poisson) system
 
 $$\frac{d\mu}{dt} = \mathrm{ad}^*_{\xi + \varphi(\xi)}\,\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
 
-so that the momentum stays on its coadjoint orbit while the energy decreases. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
+so that the momentum stays on its coadjoint orbit while the energy is not preserved. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
 
 - the free rigid body on $SO(3)$ (Section 6 of the paper);
 - a $4\times4$ periodic lattice of rigid bodies on $SO(3)^{16}$, coupled through their momenta as in Arnaudon and Takao, *Networks of coadjoint orbits* (J. Geom. Mech., 2019).
@@ -50,14 +50,14 @@ All output goes to `plots/<example name>/`:
 | --- | --- |
 | `timings.txt`, `summary.txt` | run time of each method; errors against the reference, Casimir drift, energy monotonicity |
 | `momentum_difference_norms.svg` | $\lVert M_k - M_k^{\mathrm{ref}}\rVert$ against time |
-| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: distance to the initial coadjoint orbit |
+| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: drift from initial Casimil value  |
 | `energy_*.svg` | the Hamiltonian $H(M_k)$, its error, and the energy-dissipation residual $r_k = H(M_{k+1}) - H(M_k) - h\,\dot H(M_k)$ |
 | `casimir_*_methods.svg`, `distance_to_*.svg`, `limit_M.txt` | rigid body only: the Casimir, and the approach to the limit set (a pair of points or a great circle) |
 | `ddb_cay/` | rigid body only: figures of the DDB (cay) run, including the trajectory on the Casimir sphere (`.png`, and interactive `.html`) |
 | `per_quantity/`, `per_method/`, `hsweep_summary.txt` | errors at the final time against the step size $h$ (from the h-sweep) |
-| `<method>/*.mp4` | videos: the rotating bodies drawn as boxes, and their angular momenta |
+| `<method>/*.mp4` | videos: the rotating bodies and their angular momenta |
 
-The h-sweep runs every method for a range of step sizes. For the rigid body it takes hours, so its results are saved in `plots/<example name>/hsweep_summary.pkl` and the figures are drawn from that file. The repository includes these files for Scenarios A, B, C and Lattice_A, so the scripts draw the h-sweep figures without running the sweep (the run times in `hsweep_summary.txt` are then missing). To run the sweep again, set `RUN_HSWEEP = True`, and then set it back to `False`.
+The h-sweep runs every method for a range of step sizes. For the rigid body it takes a long time, so its results are saved in `plots/<example name>/hsweep_summary.pkl` and the figures are drawn from that file. The repository includes these files for Scenarios A, B, C and Lattice_A, so the scripts draw the h-sweep figures without running the sweep. To run the sweep again, set `RUN_HSWEEP = True`, and then set it back to `False`.
 
 The folder [`paper_figures/`](paper_figures/) contains the figures of Section 6 of the paper, as produced by `run_rigid_body.py` and renamed with the scenario as prefix (for instance `plots/Scenario_A/casimir_all_methods.svg` is `A-casimir_all_methods.svg`).
 
@@ -93,7 +93,7 @@ The other files:
 
 | File | Contents |
 | --- | --- |
-| [`array_types.py`](doublebracket/array_types.py) | type aliases for the arrays (`Vec` for elements of $\mathfrak g$, `Covec` for $\mathfrak g^*$, ...) |
+| [`array_types.py`](doublebracket/array_types.py) | type aliases for the arrays |
 | [`integrators.py`](doublebracket/integrators.py) | RK4, Lobatto IIIC and DOP853, applied to the continuous equations for $\mu$ |
 | [`examples.py`](doublebracket/examples.py) | the examples (`Scenario_A`, ..., `Lattice_A`, ...); the input is checked here, once |
 | [`methods.py`](doublebracket/methods.py) | the methods compared, with their names and plot styles |
@@ -103,14 +103,7 @@ The other files:
 
 ### The examples
 
-**Rigid body.** On $\mathfrak{so}(3)\cong\mathbb R^3$, $l(\Omega) = \tfrac12\langle\Omega, \mathbb I\,\Omega\rangle$ and $\varphi(\Omega) = \alpha\,(\mathbb I\Omega)\times\Omega$, so that the equations are $\tfrac{d}{dt}(\mathbb I\Omega) = \mathbb I\Omega\times(\Omega + \varphi(\Omega))$. The Casimir is $C(M) = \tfrac12\lVert M\rVert^2$, and the energy decreases as $\dot H = -\alpha\lVert M\times\Omega\rVert^2$.
-
-**Lattice.** $N = 16$ rigid bodies at the sites of a $4\times4$ discrete torus. The Hamiltonian is $H(\mu) = \tfrac12\langle\mu, \mathbb L\,\mu\rangle$ with the $48\times48$ matrix
-
-$$\mathbb L = \mathrm{blockdiag}(\mathbb I_1^{-1},\dots,\mathbb I_{16}^{-1}) - \tfrac14\,A\otimes J,$$
-
-where $A$ is the adjacency matrix of the torus and $J$ a symmetric coupling matrix, so that $\xi_i = \mathbb I_i^{-1}\mu_i - \tfrac14 J\sum_{j\sim i}\mu_j$. The reduced Lagrangian $l(\xi) = \tfrac12\langle\xi, \mathbb L^{-1}\xi\rangle$ is hyperregular when $\mathbb L$ is positive definite, which the code checks. The dissipation is $\varphi(\xi)_i = \alpha\,\mu_i\times\xi_i$, and each body has its Casimir $C_i(\mu) = \tfrac12\lVert\mu_i\rVert^2$. Both examples are instances of `RigidBodySystem`, with $\mathbb I$ and $\mathbb L^{-1}$ as their (inertia) matrix.
-
+A rigid body and a lattice of $16$ rigid bodies at the sites of a $4\times4$ discrete torus (see the paper for the mathematical formulation).  Both examples are instances of `RigidBodySystem`.
 ### Adding an example
 
 - **Same group, new parameters or initial conditions:** add an instance of `RigidBodyExample` or `LatticeExample` in `examples.py`. Its variable name becomes the name of the output folder.
@@ -119,17 +112,13 @@ where $A$ is the adjacency matrix of the torus and $J$ a symmetric coupling matr
 
 ## Tests
 
+This is for development and for adding new examples.
+
 ```bash
 uv run pytest
 ```
 
 The tests check the identities of the paper (for instance, $(\mathrm d\tau_x^{-1})^*$ against a finite-difference computation of $\mathrm d\tau_x$, exact Casimir preservation, monotone energy decrease, exact conservation of the spatial momenta without dissipation), and they include regression tests: 5-step runs of every method on both examples, whose output is stored in `tests/test_methods/`. If a change modifies these results, the regression tests fail; regenerate the stored data (`uv run pytest --force-regen`) only after checking that the change is intended.
-
-## Conventions
-
-- The equations are $\dot\mu = \mathrm{ad}^*_{\xi+\varphi(\xi)}\mu$, with $\mathrm{ad}^*_\xi\mu = \mu\times\xi$ on $\mathfrak{so}(3)^*\cong\mathbb R^3$.
-- $\mathrm{Ad}^*_g$ is the dual of $\mathrm{Ad}_g$, so that the coadjoint action is $(g, \mu)\mapsto\mathrm{Ad}^*_{g^{-1}}\mu$. The DDB update is $M_{k+1} = \mathrm{Ad}^*_{w_k\varphi_d(w_k)} M_k$, with $\mathrm{Ad}^*_R M = R^T M$ on $SO(3)$.
-- As in the paper, $H$ is the Hamiltonian, $E_l$ the Lagrangian energy, and $h$ the step size.
 
 ## Use of generative AI
 
