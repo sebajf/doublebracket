@@ -6,7 +6,7 @@ Discrete double-bracket (DDB) integrators: the code for the paper
 
 The DDB methods integrate Euler–Poincaré (equivalently, Lie–Poisson) systems on a Lie algebra $\mathfrak g$ with double-bracket dissipation,
 
-$$\frac{d\mu}{dt} = \operatorname{ad}^*_{\xi + \varphi(\xi)}\,\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
+$$\frac{d\mu}{dt} = \mathrm{ad}^*_{\xi + \varphi(\xi)}\,\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
 
 so that the momentum stays on its coadjoint orbit while the energy decreases. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
 
@@ -82,7 +82,7 @@ The DDB method needs three ingredients: a Lie group, a retraction map on it, and
 
 | Layer | File | Contents |
 | --- | --- | --- |
-| group | [`so3.py`](doublebracket/so3.py) | the hat map, the cross product (the bracket of $\mathfrak{so}(3)$), $\operatorname{Ad}^*_R\,\mu = R^T\mu$, $\operatorname{ad}^*_\xi\,\mu = \mu\times\xi$ |
+| group | [`so3.py`](doublebracket/so3.py) | the hat map, the cross product (the bracket of $\mathfrak{so}(3)$), $\mathrm{Ad}^*_R\,\mu = R^T\mu$, $\mathrm{ad}^*_\xi\,\mu = \mu\times\xi$ |
 | retraction | [`retractions.py`](doublebracket/retractions.py) | `Cayley` and `Exp` ($\tau$ by the Cayley and Rodrigues formulas, and $(\mathrm d\tau_x^{-1})^*$; for `Exp`, exact or truncated at a given order) |
 | model | [`models.py`](doublebracket/models.py) | `RigidBodySystem`: the Lagrangian, the Legendre transform and its inverse, the Hamiltonian and energy, the dissipation map $\varphi$, the Casimirs; the continuous equations `lie_poisson_rhs` |
 | solver | [`ddb.py`](doublebracket/ddb.py) | Algorithm 1 of the paper: `solve_stage_equations`, `ddb_step`, `ddb_solve`, and `reconstruct` |
@@ -107,7 +107,7 @@ The other files:
 
 **Lattice.** $N = 16$ rigid bodies at the sites of a $4\times4$ discrete torus. The Hamiltonian is $H(\mu) = \tfrac12\langle\mu, \mathbb L\,\mu\rangle$ with the $48\times48$ matrix
 
-$$\mathbb L = \operatorname{blockdiag}(\mathbb I_1^{-1},\dots,\mathbb I_{16}^{-1}) - \tfrac14\,A\otimes J,$$
+$$\mathbb L = \mathrm{blockdiag}(\mathbb I_1^{-1},\dots,\mathbb I_{16}^{-1}) - \tfrac14\,A\otimes J,$$
 
 where $A$ is the adjacency matrix of the torus and $J$ a symmetric coupling matrix, so that $\xi_i = \mathbb I_i^{-1}\mu_i - \tfrac14 J\sum_{j\sim i}\mu_j$. The reduced Lagrangian $l(\xi) = \tfrac12\langle\xi, \mathbb L^{-1}\xi\rangle$ is hyperregular when $\mathbb L$ is positive definite, which the code checks. The dissipation is $\varphi(\xi)_i = \alpha\,\mu_i\times\xi_i$, and each body has its Casimir $C_i(\mu) = \tfrac12\lVert\mu_i\rVert^2$. Both examples are instances of `RigidBodySystem`, with $\mathbb I$ and $\mathbb L^{-1}$ as their (inertia) matrix.
 
@@ -127,8 +127,8 @@ The tests check the identities of the paper (for instance, $(\mathrm d\tau_x^{-1
 
 ## Conventions
 
-- The equations are $\dot\mu = \operatorname{ad}^*_{\xi+\varphi(\xi)}\mu$, with $\operatorname{ad}^*_\xi\mu = \mu\times\xi$ on $\mathfrak{so}(3)^*\cong\mathbb R^3$.
-- $\operatorname{Ad}^*_g$ is the dual of $\operatorname{Ad}_g$, so that the coadjoint action is $(g, \mu)\mapsto\operatorname{Ad}^*_{g^{-1}}\mu$. The DDB update is $M_{k+1} = \operatorname{Ad}^*_{w_k\varphi_d(w_k)} M_k$, with $\operatorname{Ad}^*_R M = R^T M$ on $SO(3)$.
+- The equations are $\dot\mu = \mathrm{ad}^*_{\xi+\varphi(\xi)}\mu$, with $\mathrm{ad}^*_\xi\mu = \mu\times\xi$ on $\mathfrak{so}(3)^*\cong\mathbb R^3$.
+- $\mathrm{Ad}^*_g$ is the dual of $\mathrm{Ad}_g$, so that the coadjoint action is $(g, \mu)\mapsto\mathrm{Ad}^*_{g^{-1}}\mu$. The DDB update is $M_{k+1} = \mathrm{Ad}^*_{w_k\varphi_d(w_k)} M_k$, with $\mathrm{Ad}^*_R M = R^T M$ on $SO(3)$.
 - As in the paper, $H$ is the Hamiltonian, $E_l$ the Lagrangian energy, and $h$ the step size.
 
 ## Use of generative AI
