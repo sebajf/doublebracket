@@ -82,7 +82,7 @@ The DDB method needs three ingredients: a Lie group, a retraction map on it, and
 
 | Layer      | File                                             | Contents                                                                                                                                                                                       |
 | ---------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| group      | [`so3.py`](doublebracket/so3.py)                 | the hat map, the cross product (the bracket of $\mathfrak{so}(3)$), $\mathrm{Ad}^*_R\mu = R^T\mu$, $\mathrm{ad}^*_\xi\mu = \mu\times\xi$                                                       |
+| group      | [`so3.py`](doublebracket/so3.py)                 | the hat map, the cross product (the bracket of $`\mathfrak{so}(3)`$), $`\mathrm{Ad}^*_R\mu = R^T\mu`$, $`\mathrm{ad}^*_\xi\mu = \mu\times\xi`$                                                       |
 | retraction | [`retractions.py`](doublebracket/retractions.py) | `Cayley` and `Exp` ($\tau$ by the Cayley and Rodrigues formulas, and $(\mathrm d\tau_x^{-1})^*$; for `Exp`, exact or truncated at a given order)                                               |
 | model      | [`models.py`](doublebracket/models.py)           | `RigidBodySystem`: the Lagrangian, the Legendre transform and its inverse, the Hamiltonian and energy, the dissipation map $\varphi$, the Casimirs; the continuous equations `lie_poisson_rhs` |
 | solver     | [`ddb.py`](doublebracket/ddb.py)                 | Algorithm 1 of the paper: `solve_stage_equations`, `ddb_step`, `ddb_solve`, and `reconstruct`                                                                                                  |
@@ -108,7 +108,7 @@ A rigid body and a lattice of $16$ rigid bodies at the sites of a $4\times4$ dis
 
 - **Same group, new parameters or initial conditions:** add an instance of `RigidBodyExample` or `LatticeExample` in `examples.py`. Its variable name becomes the name of the output folder.
 - **Another system on $SO(3)^N$ with a quadratic Lagrangian:** construct a `RigidBodySystem` with its matrix $\mathbb I$ (see `torus_lattice` in `models.py`).
-- **Another group** (for instance, the rigid body on $SO(4)$): write a group class and retraction classes for it, following `so3.py` and `retractions.py`, and a model following the `Model` protocol of `interfaces.py`. `ddb.py` and `integrators.py` work unchanged.
+- **Another group** (for instance, the rigid body on $`SO(4)`$): write a group class and retraction classes for it, following `so3.py` and `retractions.py`, and a model following the `Model` protocol of `interfaces.py`. `ddb.py` and `integrators.py` work unchanged.
 
 ## Tests
 
