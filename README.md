@@ -50,7 +50,7 @@ All output goes to `plots/<example name>/`:
 | --- | --- |
 | `timings.txt`, `summary.txt` | run time of each method; errors against the reference, Casimir drift, energy monotonicity |
 | `momentum_difference_norms.svg` | $\lVert M_k - M_k^{\mathrm{ref}}\rVert$ against time |
-| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: drift from initial Casimil value  |
+| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: drift from initial Casimir value  |
 | `energy_*.svg` | the Hamiltonian $H(M_k)$, its error, and the energy-dissipation residual $r_k = H(M_{k+1}) - H(M_k) - h\,\dot H(M_k)$ |
 | `casimir_*_methods.svg`, `distance_to_*.svg`, `limit_M.txt` | rigid body only: the Casimir, and the approach to the limit set (a pair of points or a great circle) |
 | `ddb_cay/` | rigid body only: figures of the DDB (cay) run, including the trajectory on the Casimir sphere (`.png`, and interactive `.html`) |
