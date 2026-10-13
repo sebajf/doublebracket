@@ -6,7 +6,7 @@ Discrete double-bracket (DDB) integrators: code for the paper
 
 The DDB methods integrate Euler–Poincaré (equivalently, Lie–Poisson) systems on a Lie algebra $\mathfrak g$ with double-bracket dissipation,
 
-$$\frac{d\mu}{dt} = \mathrm{ad}^*_{\xi + \varphi(\xi)}\,\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
+$$\frac{d\mu}{dt} = \mathrm{ad}^*_{\xi + \varphi(\xi)}\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
 
 so that the momentum stays on its coadjoint orbit while the energy is not preserved. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
 
@@ -46,16 +46,16 @@ The settings are at the top of each script: which examples to run, which methods
 
 All output goes to `plots/<example name>/`:
 
-| Output | Content |
+| Output | Content                                                                                                                         |
 | --- | --- |
-| `timings.txt`, `summary.txt` | run time of each method; errors against the reference, Casimir drift, energy monotonicity |
-| `momentum_difference_norms.svg` | $\lVert M_k - M_k^{\mathrm{ref}}\rVert$ against time |
-| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: drift from initial Casimir value  |
-| `energy_*.svg` | the Hamiltonian $H(M_k)$, its error, and the energy-dissipation residual $r_k = H(M_{k+1}) - H(M_k) - h\,\dot H(M_k)$ |
-| `casimir_*_methods.svg`, `distance_to_*.svg`, `limit_M.txt` | rigid body only: the Casimir, and the approach to the limit set (a pair of points or a great circle) |
+| `timings.txt`, `summary.txt` | run time of each method; errors against the reference, Casimir drift, energy monotonicity                                       |
+| `momentum_difference_norms.svg` | $\lVert M_k - M_k^{\mathrm{ref}}\rVert$ against time                                                                            |
+| `casimir_drift_all_methods.svg` | $\max_i \lvert C_i(M_k) - C_i(M_0)\rvert$: drift from initial Casimir value                                                     |
+| `energy_*.svg` | the Hamiltonian $H(M_k)$, its error, and the energy-dissipation residual $r_k = H(M_{k+1}) - H(M_k) - h\dot H(M_k)$             |
+| `casimir_*_methods.svg`, `distance_to_*.svg`, `limit_M.txt` | rigid body only: the Casimir, and the approach to the limit set (a pair of points or a great circle)                            |
 | `ddb_cay/` | rigid body only: figures of the DDB (cay) run, including the trajectory on the Casimir sphere (`.png`, and interactive `.html`) |
-| `per_quantity/`, `per_method/`, `hsweep_summary.txt` | errors at the final time against the step size $h$ (from the h-sweep) |
-| `<method>/*.mp4` | videos: the rotating bodies and their angular momenta |
+| `per_quantity/`, `per_method/`, `hsweep_summary.txt` | errors at the final time against the step size $h$ (from the h-sweep)                                                           |
+| `<method>/*.mp4` | videos: the rotating bodies and their angular momenta                                                                           |
 
 The h-sweep runs every method for a range of step sizes. For the rigid body it takes a long time, so its results are saved in `plots/<example name>/hsweep_summary.pkl` and the figures are drawn from that file. The repository includes these files for Scenarios A, B, C and Lattice_A, so the scripts draw the h-sweep figures without running the sweep. To run the sweep again, set `RUN_HSWEEP = True`, and then set it back to `False`.
 
@@ -80,12 +80,12 @@ R = reconstruct(Cayley(), np.eye(3), xi, h=0.1)  # attitudes R_{k+1} = R_k cay(h
 
 The DDB method needs three ingredients: a Lie group, a retraction map on it, and a model (Lagrangian and dissipation). Section 5 of the paper describes them, and the code has one layer for each of them, plus a solver layer that uses only those ingredients. The protocols in [`interfaces.py`](doublebracket/interfaces.py) list what each layer provides.
 
-| Layer | File | Contents |
-| --- | --- | --- |
-| group | [`so3.py`](doublebracket/so3.py) | the hat map, the cross product (the bracket of $\mathfrak{so}(3)$), $\mathrm{Ad}^*_R\,\mu = R^T\mu$, $\mathrm{ad}^*_\xi\,\mu = \mu\times\xi$ |
-| retraction | [`retractions.py`](doublebracket/retractions.py) | `Cayley` and `Exp` ($\tau$ by the Cayley and Rodrigues formulas, and $(\mathrm d\tau_x^{-1})^*$; for `Exp`, exact or truncated at a given order) |
-| model | [`models.py`](doublebracket/models.py) | `RigidBodySystem`: the Lagrangian, the Legendre transform and its inverse, the Hamiltonian and energy, the dissipation map $\varphi$, the Casimirs; the continuous equations `lie_poisson_rhs` |
-| solver | [`ddb.py`](doublebracket/ddb.py) | Algorithm 1 of the paper: `solve_stage_equations`, `ddb_step`, `ddb_solve`, and `reconstruct` |
+| Layer      | File                                             | Contents                                                                                                                                                                                       |
+| ---------- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| group      | [`so3.py`](doublebracket/so3.py)                 | the hat map, the cross product (the bracket of $\mathfrak{so}(3)$), $\mathrm{Ad}^*_R\mu = R^T\mu$, $\mathrm{ad}^*_\xi\mu = \mu\times\xi$                                                       |
+| retraction | [`retractions.py`](doublebracket/retractions.py) | `Cayley` and `Exp` ($\tau$ by the Cayley and Rodrigues formulas, and $(\mathrm d\tau_x^{-1})^*$; for `Exp`, exact or truncated at a given order)                                               |
+| model      | [`models.py`](doublebracket/models.py)           | `RigidBodySystem`: the Lagrangian, the Legendre transform and its inverse, the Hamiltonian and energy, the dissipation map $\varphi$, the Casimirs; the continuous equations `lie_poisson_rhs` |
+| solver     | [`ddb.py`](doublebracket/ddb.py)                 | Algorithm 1 of the paper: `solve_stage_equations`, `ddb_step`, `ddb_solve`, and `reconstruct`                                                                                                  |
 
 All the examples live on $SO(3)^N$, with $N = 1$ for the single rigid body. An element of $\mathfrak g$ or $\mathfrak g^*$ is an array of shape `(N, 3)`, or `(3,)` for one body, and a group element is an array of shape `(N, 3, 3)`, or `(3, 3)`. The functions of the group and retraction layers act on the last axis, so the same code handles $SO(3)$ and $SO(3)^N$.
 
