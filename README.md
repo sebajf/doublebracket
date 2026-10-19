@@ -39,7 +39,7 @@ Two optional external programs:
 
 ```bash
 uv run run_rigid_body.py   # rigid body: Scenarios A, B and C of the paper (about 2 minutes)
-uv run run_lattice.py      # 4x4 lattice: examples Lattice_A, Lattice_B, Lattice_cons (about 5 minutes; Lobatto IIIC takes most of it)
+uv run run_lattice.py      # 4x4 lattice: examples Lattice_A, Lattice_B (about 5 minutes; Lobatto IIIC takes most of it)
 ```
 
 The settings are at the top of each script: which examples to run, which methods to skip (Lobatto IIIC is the slowest), whether to run the h-sweep, and which videos to make. The examples themselves (inertia tensors, dissipation coefficient, initial conditions, time span, step size) are defined in [`doublebracket/examples.py`](doublebracket/examples.py).

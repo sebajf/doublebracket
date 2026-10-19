@@ -40,7 +40,7 @@ def test_stage_solver_failure_raises() -> None:
 
 @pytest.mark.parametrize("retraction", RETRACTIONS, ids=lambda r: r.name)
 def test_casimirs_preserved_along_a_run(retraction: Retraction) -> None:
-    ex = examples.Lattice_cons  # no dissipation: the energy is not monotone, but the Casimirs are still preserved
+    ex = replace(examples.Lattice_A, alpha=0.0)  # no dissipation: the energy is not monotone, but the Casimirs are still preserved
     M, _ = ddb_solve(ex.model, retraction, ex.M0, ex.h, 20)
     assert np.allclose(ex.model.casimirs(M), 0.5, rtol=0, atol=1e-14)
 
@@ -62,7 +62,7 @@ def test_spatial_momenta_conserved_without_dissipation(retraction: Retraction) -
     """
     For alpha = 0, each spatial momentum pi_i = R_i M_i is conserved exactly by the DDB method, with R reconstructed from the stage velocities: M_{k+1} = tau(h xi_k)^T M_k gives pi_{k+1} = R_k tau(h xi_k) M_{k+1} = pi_k. With dissipation, the spatial momenta change, but not their norms.
     """
-    for ex, conserved in ((examples.Lattice_cons, True), (examples.Lattice_A, False)):
+    for ex, conserved in ((replace(examples.Lattice_A, alpha=0.0), True), (examples.Lattice_A, False)):
         M, xi = ddb_solve(ex.model, retraction, ex.M0, ex.h, 20)
         R = reconstruct(retraction, np.broadcast_to(np.eye(3), (16, 3, 3)), xi, ex.h)
         pi = spatial_momenta(R, M)

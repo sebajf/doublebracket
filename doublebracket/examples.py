@@ -153,7 +153,6 @@ Lattice_A = LatticeExample(
     alpha=0.2, t_span=(0.0, 10.0), h=0.05, ref_rtol=1e-13, ref_atol=1e-13, hsweep_order_lines=((1, 5.0), (4, 1e-2))
 )
 Lattice_B = replace(Lattice_A, t_span=(0.0, 200.0))
-Lattice_cons = replace(Lattice_A, alpha=0.0, t_span=(0.0, 100.0))  # no dissipation
 
 
 ##############################################################

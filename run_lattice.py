@@ -3,7 +3,7 @@ The 4x4 periodic lattice of rigid bodies with momentum coupling and double-brack
 
 Run with
     uv run run_lattice.py
-The examples are defined in doublebracket/examples.py (Lattice_A, Lattice_B, Lattice_cons), and the output goes to plots/<example name>/. The settings are below.
+The examples are defined in doublebracket/examples.py (Lattice_A, Lattice_B), and the output goes to plots/<example name>/. The settings are below.
 """
 
 import os
@@ -19,7 +19,7 @@ from doublebracket.hsweep import hsweep, plot_hsweep, sweep_path
 matplotlib.use("Agg")  # save figures to files, without opening windows
 
 # Settings
-EXAMPLES = [examples.Lattice_A, examples.Lattice_B, examples.Lattice_cons]
+EXAMPLES = [examples.Lattice_A, examples.Lattice_B]
 # Lobatto IIIC is the slowest method (about 50 ms per step for the 4x4 lattice); add it here to skip it.
 DISABLED_METHODS: tuple[str, ...] = ()
 # The h-sweep takes a few minutes. Its results are saved, and the figures are made from the saved file.
