@@ -1,14 +1,14 @@
-# Discrete double bracket dissipation
+# Discrete double-bracket dissipation
 
 Discrete double-bracket (DDB) integrators: code for the paper
 
 > A. Bloch, S. J. Ferraro, D. Martín de Diego, S. Bharadwaj, *Discrete variational calculus for double-bracket dissipation*, [arXiv:2604.26049](https://arxiv.org/abs/2604.26049).
 
-The DDB methods integrate Euler–Poincaré (equivalently, Lie–Poisson) systems on a Lie algebra $\mathfrak g$ with double-bracket dissipation,
+The DDB methods integrate Lie–Poisson systems on the dual $\mathfrak g^*$ of a Lie algebra $\mathfrak g$ with double-bracket dissipation:
 
 $$\frac{d\mu}{dt} = \mathrm{ad}^*_{\xi + \varphi(\xi)}\mu, \qquad \mu = \frac{\partial l}{\partial \xi},$$
 
-so that the momentum stays on its coadjoint orbit while the energy is not preserved. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
+so that the momentum stays on its coadjoint orbit while the energy is not generally preserved. The discrete methods preserve the coadjoint orbits exactly (up to round-off). The code compares them with RK4, 3-stage Lobatto IIIC and a DOP853 reference solution, on two examples:
 
 - the free rigid body on $SO(3)$ (Section 6 of the paper);
 - a $4\times4$ periodic lattice of rigid bodies on $SO(3)^{16}$, coupled through their momenta as in Arnaudon and Takao, *Networks of coadjoint orbits* (J. Geom. Mech., 2019).
@@ -91,15 +91,15 @@ All the examples live on $SO(3)^N$, with $N = 1$ for the single rigid body. An e
 
 The other files:
 
-| File | Contents |
-| --- | --- |
-| [`array_types.py`](doublebracket/array_types.py) | type aliases for the arrays |
-| [`integrators.py`](doublebracket/integrators.py) | RK4, Lobatto IIIC and DOP853, applied to the continuous equations for $\mu$ |
-| [`examples.py`](doublebracket/examples.py) | the examples (`Scenario_A`, ..., `Lattice_A`, ...); the input is checked here, once |
-| [`methods.py`](doublebracket/methods.py) | the methods compared, with their names and plot styles |
-| [`diagnostics.py`](doublebracket/diagnostics.py) | energy, Casimir drift, energy-dissipation residual, distance to the limit set |
-| [`compare.py`](doublebracket/compare.py), [`hsweep.py`](doublebracket/hsweep.py) | comparison runs and h-sweeps, with their text output |
-| [`plots.py`](doublebracket/plots.py), [`animation.py`](doublebracket/animation.py) | figures and videos |
+| File                                                                               | Contents                                                                            |
+| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| [`array_types.py`](doublebracket/array_types.py)                                   | type aliases for the arrays                                                         |
+| [`integrators.py`](doublebracket/integrators.py)                                   | RK4, Lobatto IIIC and DOP853, applied to the continuous equations for $\mu$         |
+| [`examples.py`](doublebracket/examples.py)                                         | the examples (`Scenario_A`, ..., `Lattice_A`, ...); the input is checked here, once |
+| [`methods.py`](doublebracket/methods.py)                                           | the methods compared, with their names and plot styles                              |
+| [`diagnostics.py`](doublebracket/diagnostics.py)                                   | energy, Casimir drift, energy-dissipation residual, distance to the limit set       |
+| [`compare.py`](doublebracket/compare.py), [`hsweep.py`](doublebracket/hsweep.py)   | comparison runs and h-sweeps, with their text output                                |
+| [`plots.py`](doublebracket/plots.py), [`animation.py`](doublebracket/animation.py) | figures and videos                                                                  |
 
 ### The examples
 
@@ -118,7 +118,7 @@ This is for development and for adding new examples.
 uv run pytest
 ```
 
-The tests check the identities of the paper (for instance, $(\mathrm d\tau_x^{-1})^*$ against a finite-difference computation of $\mathrm d\tau_x$, exact Casimir preservation, monotone energy decrease, exact conservation of the spatial momenta without dissipation), and they include regression tests: 5-step runs of every method on both examples, whose output is stored in `tests/test_methods/`. If a change modifies these results, the regression tests fail; regenerate the stored data (`uv run pytest --force-regen`) only after checking that the change is intended.
+The tests check the identities of the paper (for instance, $(\mathrm d\tau_x^{-1})^*$ against a finite-difference computation of $\mathrm d\tau_x$, exact Casimir preservation, monotone energy decrease for our examples, exact conservation of the spatial momenta without dissipation), and they include regression tests.
 
 ## Use of generative AI
 

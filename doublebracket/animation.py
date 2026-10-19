@@ -187,7 +187,7 @@ def animate_momenta(
     tips = centers + scale * M_frames  # shape (numframes, N, 3)
 
     # Static parts: orbit spheres and body axes (body frame), or spatial axes (spatial frame)
-    u, v = np.meshgrid(np.linspace(0, 2 * np.pi, 13), np.linspace(0, np.pi, 7))
+    u, v = np.meshgrid(np.linspace(0, 2 * np.pi, 73), np.linspace(0, np.pi, 37))
     unit_sphere = np.stack([np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), np.cos(v)])
     for i in range(n_sites):
         r = scale * norms[0, i]
@@ -200,7 +200,7 @@ def animate_momenta(
                 segment[:, axis] = [-r, r]
                 ax.plot3D(*(centers[i] + segment).T, color="gray", linewidth=0.6, alpha=0.5)
         if frame == "body":
-            ax.plot_wireframe(*(centers[i][:, None, None] + r * unit_sphere), color="gray", linewidth=0.3, alpha=0.3)
+            ax.plot_wireframe(*(centers[i][:, None, None] + r * unit_sphere), rstride=6, cstride=6, color="gray", linewidth=0.3, alpha=0.3)
 
     # Moving parts
     arrows = [ax.plot3D([], [], [], color="black", linewidth=2)[0] for _ in range(n_sites)]
