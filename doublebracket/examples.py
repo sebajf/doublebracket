@@ -152,7 +152,7 @@ FlipSide = RigidBodyExample(Omega0=np.array([0.0, 0.08, 1.0]), h=1.0)
 Lattice_A = LatticeExample(
     alpha=0.2,
     t_span=(0.0, 10.0),
-    h=0.05,
+    h=0.1,
     ref_rtol=1e-13,
     ref_atol=1e-13,
     truncation_order=2,  # as for the rigid body
