@@ -62,7 +62,7 @@ class Exp:
     """
     The exponential retraction tau = exp on SO(3).
 
-    (dexp_x^{-1})^* is the series sum_{j >= 0} (-1)^j B_j hat(x)^j / j!, with the Bernoulli numbers B_j (B_1 = -1/2). With order=None we use its exact closed form; with an integer order, the series truncated after the term j = order, which gives a different method. The paper's rigid-body figures use order=2.
+    (dexp_x^{-1})^* is the series sum_{j >= 0} (-1)^j B_j hat(x)^j / j!, with the Bernoulli numbers B_j (B_1 = -1/2). With order=None we use its exact closed form; with an integer order, the series truncated after the term j = order, which gives a different method. The paper's figures (rigid body and lattice) use order=2.
     """
 
     order: int | None = None

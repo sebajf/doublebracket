@@ -150,7 +150,13 @@ FlipSide = RigidBodyExample(Omega0=np.array([0.0, 0.08, 1.0]), h=1.0)
 
 # 4x4 periodic lattice of rigid bodies, I_list and J as above
 Lattice_A = LatticeExample(
-    alpha=0.2, t_span=(0.0, 10.0), h=0.05, ref_rtol=1e-13, ref_atol=1e-13, hsweep_order_lines=((1, 5.0), (4, 1e-2))
+    alpha=0.2,
+    t_span=(0.0, 10.0),
+    h=0.05,
+    ref_rtol=1e-13,
+    ref_atol=1e-13,
+    truncation_order=2,  # as for the rigid body
+    hsweep_order_lines=((1, 5.0), (4, 1e-2)),
 )
 Lattice_B = replace(Lattice_A, t_span=(0.0, 200.0))
 
