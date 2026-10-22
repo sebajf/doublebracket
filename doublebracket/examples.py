@@ -159,6 +159,7 @@ Lattice_A = LatticeExample(
     hsweep_order_lines=((1, 5.0), (4, 1e-2)),
 )
 Lattice_B = replace(Lattice_A, t_span=(0.0, 200.0))
+Lattice_B_T400 = replace(Lattice_B, t_span=(0.0, 400.0))
 
 
 ##############################################################

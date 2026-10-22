@@ -6,6 +6,7 @@ import numpy as np
 
 from doublebracket.array_types import CovecArray, Mat3x3, ScalarArray
 from doublebracket.models import RigidBodySystem, energy_rate
+from doublebracket.so3 import cross
 
 
 def energies(model: RigidBodySystem, M: CovecArray) -> ScalarArray:
@@ -25,6 +26,14 @@ def energy_dissipation_residual(model: RigidBodySystem, M: CovecArray, h: float)
     """
     rates = np.array([energy_rate(model, Mk) for Mk in M[:-1]])
     return np.diff(energies(model, M)) - h * rates
+
+
+def equilibrium_residual(model: RigidBodySystem, M: CovecArray) -> ScalarArray:
+    """
+    max_i |mu_i × xi_i| at each time, with xi = dH/dmu(mu): it vanishes exactly on the set E of equilibria, where dH/dt = -alpha sum_i |mu_i × xi_i|^2 vanishes.
+    """
+    xi = np.array([model.inverse_legendre(Mk) for Mk in M])
+    return np.linalg.norm(cross(M, xi), axis=-1).reshape(len(M), -1).max(axis=1)
 
 
 def momentum_error(M: CovecArray, M_ref: CovecArray) -> ScalarArray:

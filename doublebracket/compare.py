@@ -14,10 +14,11 @@ from doublebracket.diagnostics import (
     distance_to_great_circle,
     energies,
     energy_dissipation_residual,
+    equilibrium_residual,
     largest_inertia_axes,
     momentum_error,
 )
-from doublebracket.examples import Example, RigidBodyExample
+from doublebracket.examples import Example, LatticeExample, RigidBodyExample
 from doublebracket.methods import METHODS, REFERENCE, Trajectory
 from doublebracket.plots import (
     plot_energy_levels_on_sphere,
@@ -131,7 +132,24 @@ def compare_methods(example: Example, disabled_methods: tuple[str, ...] = ()) ->
 
     if isinstance(example, RigidBodyExample):
         compare_rigid_body(example, trajectories)
+    if isinstance(example, LatticeExample) and example.alpha > 0:
+        compare_lattice(example, trajectories)
     return trajectories
+
+
+def compare_lattice(example: LatticeExample, trajectories: dict[str, Trajectory]) -> None:
+    """
+    The residual max_i |mu_i × xi_i| of the set E of equilibria, over the second half of the run (for t in [200, 400] if t_span = (0, 400)).
+    """
+    model = example.model
+    t = example.times
+    late = t >= (example.t_span[0] + example.t_span[1]) / 2
+    plot_time_series(
+        {key: (t[late], equilibrium_residual(model, tr.M)[late]) for key, tr in trajectories.items()},
+        r"$\max_i \|\mu_i \times \xi_i\|$",
+        r"Residual of the equilibrium set $\mathcal{E}$ (second half of the simulation)",
+        f"plots/{example.name}/equilibrium_residual_late_all_methods.svg",
+    )
 
 
 def compare_rigid_body(example: RigidBodyExample, trajectories: dict[str, Trajectory]) -> None:

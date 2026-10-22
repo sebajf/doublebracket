@@ -19,7 +19,7 @@ from doublebracket.hsweep import hsweep, plot_hsweep, sweep_path
 matplotlib.use("Agg")  # save figures to files, without opening windows
 
 # Settings
-EXAMPLES = [examples.Lattice_A, examples.Lattice_B]
+EXAMPLES = [examples.Lattice_A, examples.Lattice_B, examples.Lattice_B_T400]
 # Lobatto IIIC is the slowest method (about 50 ms per step for the 4x4 lattice); add it here to skip it.
 DISABLED_METHODS: tuple[str, ...] = ()
 # The h-sweep takes a few minutes. Its results are saved, and the figures are made from the saved file.
