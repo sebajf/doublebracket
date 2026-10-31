@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from jaxtyping import Float
 from matplotlib.animation import FFMpegWriter, FuncAnimation
+from matplotlib.transforms import Bbox
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from numpy import ndarray
 from scipy.spatial.transform import Rotation, Slerp
@@ -85,6 +86,39 @@ def _save(figure, update, numframes: int, fps: int, filename: str) -> None:
     animation.save(filename, writer=FFMpegWriter(fps=fps, bitrate=4000, codec="libx264"), dpi=100)
     plt.close(figure)
     print(f"  Animation saved as '{filename}'")
+
+
+def _save_stills(figure, ax, update, numframes: int, hidden: list, filename: str) -> None:
+    """
+    Save the first and last frames as <filename without .mp4>_first.pdf and _last.pdf, without the title and the artists in hidden (text labels, trails).
+
+    Both are cropped to the same box, the smallest one that holds the drawing in either frame (bbox_inches="tight" keeps the whole 3D axes).
+    """
+    title = ax.get_title()
+    ax.set_title("")
+    for artist in hidden:
+        artist.set_visible(False)
+    frames = {"first": 0, "last": numframes - 1}
+    rows, cols = [], []
+    for frame in frames.values():
+        update(frame)
+        figure.canvas.draw()
+        drawn = np.any(np.asarray(figure.canvas.buffer_rgba())[..., :3] < 250, axis=-1)
+        rows.extend(np.flatnonzero(drawn.any(axis=1))[[0, -1]])
+        cols.extend(np.flatnonzero(drawn.any(axis=0))[[0, -1]])
+    height = drawn.shape[0]
+    pad = 4  # pixels
+    box = Bbox.from_extents(min(cols) - pad, height - max(rows) - pad, max(cols) + pad, height - min(rows) + pad)
+    box = box.transformed(figure.dpi_scale_trans.inverted())  # inches
+    os.makedirs(os.path.dirname(filename) or ".", exist_ok=True)
+    stem = filename.removesuffix(".mp4")
+    for suffix, frame in frames.items():
+        update(frame)
+        figure.savefig(f"{stem}_{suffix}.pdf", bbox_inches=box)
+        print(f"  Still saved as '{stem}_{suffix}.pdf'")
+    ax.set_title(title)
+    for artist in hidden:
+        artist.set_visible(True)
 
 
 def _time_label(t: float, energy: float) -> str:
@@ -162,6 +196,8 @@ def animate_momenta(
     spacing: float = 1.8,
     max_radius: float = 0.65,
     trail_time: float = 3.0,
+    video: bool = True,
+    stills: bool = False,
 ) -> None:
     """
     Video of the angular momentum vectors of N = side^2 bodies, laid out as in animate_boxes. The longest vector is drawn with length max_radius, and a trail shows the path of each tip over the last trail_time time units.
@@ -212,7 +248,7 @@ def animate_momenta(
         if frame == "body"
         else r"Arrows: spatial angular momenta $\pi_i = R_i M_i$. Gray: spatial axes"
     )
-    ax.text2D(0.02, 0.02, legend, transform=ax.transAxes, fontsize=10)
+    legend_text = ax.text2D(0.02, 0.02, legend, transform=ax.transAxes, fontsize=10)
 
     def update(k: int) -> list:
         first = max(0, k - trail_frames)
@@ -223,7 +259,12 @@ def animate_momenta(
         time_text.set_text(_time_label(frame_times[k], energy_frames[k]))
         return [*arrows, *heads, *trails, time_text]
 
-    _save(figure, update, len(frame_times), fps, filename)
+    if stills:
+        _save_stills(figure, ax, update, len(frame_times), [time_text, legend_text, *trails], filename)
+    if video:
+        _save(figure, update, len(frame_times), fps, filename)
+    else:
+        plt.close(figure)
 
 
 def attitudes(example: Example, method_key: str) -> tuple[TimeArray, CovecArray, GroupElementArray]:
@@ -252,10 +293,13 @@ def create_animations(
     momentum_frame: Literal["body", "spatial"] = "spatial",
     fps: int = 30,
     speedup: float = 10.0,
+    video: bool = True,
+    stills: bool = False,
 ) -> None:
     """
     Videos of one method's run, saved in plots/<example name>/<method short name>/:
     rotating_boxes_<method>.mp4 (if boxes) and <momentum_frame>_momenta_<method>.mp4 (if momenta).
+    With stills, the first and last frames of the momenta video are also saved, without labels or trails, as <video name>_first.pdf and <video name>_last.pdf. With video=False, only the stills are made.
     """
     method = METHODS[method_key]
     t, M, R = attitudes(example, method_key)
@@ -282,4 +326,6 @@ def create_animations(
             title,
             fps,
             speedup,
+            video=video,
+            stills=stills,
         )

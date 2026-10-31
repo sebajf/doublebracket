@@ -26,8 +26,10 @@ DISABLED_METHODS: tuple[str, ...] = ()
 HSWEEP_EXAMPLE = examples.Lattice_A
 RUN_HSWEEP = False
 HRANGE = np.logspace(np.log10(0.2), np.log10(0.002), 7)
-# Videos of the DDB (cay) run: rotating boxes and spatial angular momenta. They need ffmpeg and take a few minutes.
+# Videos of the DDB (cay) run: rotating boxes and body angular momenta. They need ffmpeg and take a few minutes.
 VIDEO_EXAMPLES: list[examples.LatticeExample] = []  # e.g. [examples.Lattice_B]
+# Stills for the paper: the first and last frames of the body momenta video, without labels (PDF).
+STILL_EXAMPLES: list[examples.LatticeExample] = []  # e.g. [examples.Lattice_B]
 
 
 if __name__ == "__main__":
@@ -38,4 +40,6 @@ if __name__ == "__main__":
     if os.path.exists(sweep_path(HSWEEP_EXAMPLE)):
         plot_hsweep(HSWEEP_EXAMPLE)
     for example in VIDEO_EXAMPLES:
-        create_animations(example, "DDB cay", momentum_frame="spatial", fps=30, speedup=10.0)
+        create_animations(example, "DDB cay", momentum_frame="body", fps=30, speedup=10.0)
+    for example in STILL_EXAMPLES:
+        create_animations(example, "DDB cay", boxes=False, momentum_frame="body", video=False, stills=True)
