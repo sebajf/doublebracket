@@ -17,6 +17,18 @@ from doublebracket.compare import compare_methods
 from doublebracket.hsweep import hsweep, plot_hsweep, sweep_path
 
 matplotlib.use("Agg")  # save figures to files, without opening windows
+matplotlib.rcParams.update(
+    {
+        "text.usetex": True,
+        "font.family": "serif",
+        "font.serif": ["Times"],
+        "text.latex.preamble": r"\usepackage{newtxtext,newtxmath}",
+        "figure.dpi": 200,
+        "savefig.dpi": 200,
+        "figure.figsize": (6.4, 4.8),
+        "legend.loc": "best",
+    }
+)
 
 # Settings
 EXAMPLES = [examples.Scenario_A, examples.Scenario_B, examples.Scenario_C]  # Scenarios A, B, C of the paper
