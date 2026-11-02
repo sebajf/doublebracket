@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 from matplotlib import colors as mcolors
+from matplotlib import transforms
 
 from doublebracket.array_types import CovecArray, Mat3x3, TimeArray
 from doublebracket.diagnostics import largest_inertia_axes
@@ -28,19 +29,29 @@ def plot_time_series(
     title: str,
     path: str,
     logscale: bool = True,
+    labels: dict[str, str] | None = None,
+    legend_bottom: float | None = None,
 ) -> None:
-    """One curve per method, from a dict mapping method keys to (times, values)."""
+    """
+    One curve per method, from a dict mapping method keys to (times, values). labels replaces the legend labels of some methods. If legend_bottom is given, the legend is placed at the right, with its bottom edge at y = legend_bottom (in data coordinates).
+    """
     plt.figure(figsize=(8, 3.2))
     for method_key, (t, values) in series.items():
         method = METHODS[method_key]
-        plt.plot(t, values, method.linespec, linewidth=1.5, label=method.label)
+        label = labels.get(method_key, method.label) if labels else method.label
+        plt.plot(t, values, method.linespec, linewidth=1.5, label=label)
     plt.xlabel("Time")
     plt.ylabel(ylabel)
     plt.title(title)
-    plt.legend()
     plt.grid(True, alpha=0.3)
     if logscale:
         plt.yscale("log")
+    if legend_bottom is None:
+        plt.legend()
+    else:
+        ax = plt.gca()
+        to_axes_x_data_y = transforms.blended_transform_factory(ax.transAxes, ax.transData)
+        plt.legend(loc="lower right", bbox_to_anchor=(1, legend_bottom), bbox_transform=to_axes_x_data_y)
     plt.tight_layout()
     save_figure(path)
 

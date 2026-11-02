@@ -31,11 +31,17 @@ matplotlib.rcParams.update(
 )
 
 # Settings
-EXAMPLES = [examples.Lattice_A, examples.Lattice_B, examples.Lattice_B_T400]
+EXAMPLES = [
+    examples.Lattice_A,
+    examples.Lattice_B,
+    examples.Lattice_B_T400,
+    examples.Lattice_low_dissipation,
+    examples.Lattice_high_dissipation,
+]
 # Lobatto IIIC is the slowest method (about 50 ms per step for the 4x4 lattice); add it here to skip it.
 DISABLED_METHODS: tuple[str, ...] = ()
 # The h-sweep takes a few minutes. Its results are saved, and the figures are made from the saved file.
-HSWEEP_EXAMPLE = examples.Lattice_A
+HSWEEP_EXAMPLES = [examples.Lattice_A, examples.Lattice_high_dissipation]
 RUN_HSWEEP = False
 HRANGE = np.logspace(np.log10(0.2), np.log10(0.002), 7)
 # Videos of the DDB (cay) run: rotating boxes and body angular momenta. They need ffmpeg and take a few minutes.
@@ -47,10 +53,11 @@ STILL_EXAMPLES: list[examples.LatticeExample] = []  # e.g. [examples.Lattice_B]
 if __name__ == "__main__":
     for example in EXAMPLES:
         compare_methods(example, DISABLED_METHODS)
-    if RUN_HSWEEP:
-        hsweep(HSWEEP_EXAMPLE, HRANGE, DISABLED_METHODS)
-    if os.path.exists(sweep_path(HSWEEP_EXAMPLE)):
-        plot_hsweep(HSWEEP_EXAMPLE)
+    for example in HSWEEP_EXAMPLES:
+        if RUN_HSWEEP:
+            hsweep(example, HRANGE, DISABLED_METHODS)
+        if os.path.exists(sweep_path(example)):
+            plot_hsweep(example)
     for example in VIDEO_EXAMPLES:
         create_animations(example, "DDB cay", momentum_frame="body", fps=30, speedup=10.0)
     for example in STILL_EXAMPLES:

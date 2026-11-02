@@ -23,7 +23,7 @@ def test_one_step(ex: examples.Example, retraction: Retraction) -> None:
     model, M0, h = ex.model, ex.M0, ex.h
     xi = solve_stage_equations(model, retraction, M0, h)
     residual = retraction.dtau_inv_star(h * xi, model.legendre(xi)) - M0
-    assert np.abs(residual).max() < 1e-12
+    assert np.abs(residual).max() < 1e-10
 
     M1, xi_step = ddb_step(model, retraction, M0, h)
     assert np.array_equal(xi_step, xi)

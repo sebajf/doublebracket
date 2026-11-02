@@ -156,10 +156,17 @@ Lattice_A = LatticeExample(
     ref_rtol=1e-13,
     ref_atol=1e-13,
     truncation_order=2,  # as for the rigid body
-    hsweep_order_lines=((1, 5.0), (4, 1e-2)),
+    hsweep_order_lines=((1, 5.0), (4, 1.0)),
 )
 Lattice_B = replace(Lattice_A, t_span=(0.0, 200.0))
 Lattice_B_T400 = replace(Lattice_B, t_span=(0.0, 400.0))
+Lattice_low_dissipation = replace(Lattice_B, alpha=0.001)
+Lattice_high_dissipation = replace(
+    Lattice_A,
+    alpha=3.0,
+    hsweep_order_lines=((1, 2.0), (4, 1e-2)),
+    hsweep_method_order_lines={"RK4": (4, 0.1), "Lobatto IIIC": (4, 1e-2), "DDB exp": (1, 2.0), "DDB cay": (1, 2.0)},
+)
 
 
 ##############################################################

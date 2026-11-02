@@ -101,6 +101,9 @@ def compare_methods(example: Example, disabled_methods: tuple[str, ...] = ()) ->
         r"$\max_i |C_i(M_k) - C_i(M_0)|$",
         "Casimir drift (distance to the initial coadjoint orbit)",
         f"{outdir}/casimir_drift_all_methods.svg",
+        # For the lattice: the reference here is the exact value 0, not the DOP853 solution
+        labels={REFERENCE: "DOP853"} if isinstance(example, LatticeExample) else None,
+        legend_bottom=1e-13 if isinstance(example, LatticeExample) else None,
     )
     if example.alpha > 0:
         plot_time_series(
