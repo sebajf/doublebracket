@@ -121,6 +121,35 @@ def _save_stills(figure, ax, update, numframes: int, hidden: list, filename: str
         artist.set_visible(True)
 
 
+def _crop_figure(figure, ax, margin: float = 0.4, save_dpi: int = 100) -> None:
+    """
+    Shrink the figure to the box of what is drawn now plus margin (inches) on each side, keeping the drawing's size and position on the page.
+
+    The drawing must already cover everything that later frames draw. The size is rounded so that the video frame has even width and height at save_dpi (needed by libx264).
+    """
+    figure.canvas.draw()
+    drawn = np.any(np.asarray(figure.canvas.buffer_rgba())[..., :3] < 250, axis=-1)
+    rows, cols = np.flatnonzero(drawn.any(axis=1)), np.flatnonzero(drawn.any(axis=0))
+    dpi = figure.dpi
+    old_width, old_height = figure.get_size_inches()
+    left = cols[0] / dpi - margin
+    top = rows[0] / dpi - margin
+    step = 2 / save_dpi
+    width = np.ceil((cols[-1] - cols[0]) / dpi / step + 2 * margin / step) * step
+    height = np.ceil((rows[-1] - rows[0]) / dpi / step + 2 * margin / step) * step
+    bottom = old_height - top - height  # distance from the old figure's bottom edge to the new one's
+    position = ax.get_position()  # in old figure fractions
+    figure.set_size_inches(width, height)
+    ax.set_position(
+        [
+            (position.x0 * old_width - left) / width,
+            (position.y0 * old_height - bottom) / height,
+            position.width * old_width / width,
+            position.height * old_height / height,
+        ]
+    )
+
+
 def _time_label(t: float, energy: float) -> str:
     return f"t = {t:.2f},   H(M) = {energy:.4f}"
 
@@ -198,6 +227,8 @@ def animate_momenta(
     trail_time: float = 3.0,
     video: bool = True,
     stills: bool = False,
+    legend: bool = True,
+    crop: bool = False,
 ) -> None:
     """
     Video of the angular momentum vectors of N = side^2 bodies, laid out as in animate_boxes. The longest vector is drawn with length max_radius, and a trail shows the path of each tip over the last trail_time time units.
@@ -225,6 +256,7 @@ def animate_momenta(
     # Static parts: orbit spheres and body axes (body frame), or spatial axes (spatial frame)
     u, v = np.meshgrid(np.linspace(0, 2 * np.pi, 73), np.linspace(0, np.pi, 37))
     unit_sphere = np.stack([np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), np.cos(v)])
+    spheres = []  # in the spatial frame, drawn only for the crop
     for i in range(n_sites):
         r = scale * norms[0, i]
         for axis, color in enumerate(["tab:red", "tab:green", "tab:blue"]):
@@ -235,20 +267,22 @@ def animate_momenta(
             else:
                 segment[:, axis] = [-r, r]
                 ax.plot3D(*(centers[i] + segment).T, color="gray", linewidth=0.6, alpha=0.5)
-        if frame == "body":
-            ax.plot_wireframe(*(centers[i][:, None, None] + r * unit_sphere), rstride=6, cstride=6, color="gray", linewidth=0.3, alpha=0.3)
+        if frame == "body" or crop:
+            spheres.append(ax.plot_wireframe(*(centers[i][:, None, None] + r * unit_sphere), rstride=6, cstride=6, color="gray", linewidth=0.3, alpha=0.3))
 
     # Moving parts
     arrows = [ax.plot3D([], [], [], color="black", linewidth=2)[0] for _ in range(n_sites)]
     heads = [ax.plot3D([], [], [], marker="o", markersize=4, color="black")[0] for _ in range(n_sites)]
     trails = [ax.plot3D([], [], [], color="tab:orange", linewidth=1, alpha=0.8)[0] for _ in range(n_sites)]
     time_text = ax.text2D(0.02, 0.95, "", transform=ax.transAxes, fontsize=13)
-    legend = (
-        "Arrows: body angular momenta $M_i$. Body axes: $e_1$ (red), $e_2$ (green), $e_3$ (blue)"
-        if frame == "body"
-        else r"Arrows: spatial angular momenta $\pi_i = R_i M_i$. Gray: spatial axes"
-    )
-    legend_text = ax.text2D(0.02, 0.02, legend, transform=ax.transAxes, fontsize=10)
+    hidden = [time_text, *trails]
+    if legend:
+        legend_label = (
+            "Arrows: body angular momenta $M_i$. Body axes: $e_1$ (red), $e_2$ (green), $e_3$ (blue)"
+            if frame == "body"
+            else r"Arrows: spatial angular momenta $\pi_i = R_i M_i$. Gray: spatial axes"
+        )
+        hidden.append(ax.text2D(0.02, 0.02, legend_label, transform=ax.transAxes, fontsize=10))
 
     def update(k: int) -> list:
         first = max(0, k - trail_frames)
@@ -259,8 +293,14 @@ def animate_momenta(
         time_text.set_text(_time_label(frame_times[k], energy_frames[k]))
         return [*arrows, *heads, *trails, time_text]
 
+    if crop:
+        update(0)  # the tips stay on the spheres, so the first frame with the spheres covers what any frame draws
+        _crop_figure(figure, ax)
+        if frame == "spatial":
+            for sphere in spheres:
+                sphere.remove()
     if stills:
-        _save_stills(figure, ax, update, len(frame_times), [time_text, legend_text, *trails], filename)
+        _save_stills(figure, ax, update, len(frame_times), hidden, filename)
     if video:
         _save(figure, update, len(frame_times), fps, filename)
     else:
@@ -307,10 +347,12 @@ def create_animations(
     outdir = f"plots/{example.name}/{method.short_name}"
     if isinstance(example, LatticeExample):
         title = f"{example.side}x{example.side} lattice of rigid bodies, {method.label}, alpha = {example.alpha}"
+        momenta_title = f"{momentum_frame.capitalize()} momenta of a {title}"
         I_list = example.I_list
     else:
         assert isinstance(example, RigidBodyExample)
         title = f"Rigid body, {method.label}, alpha = {example.alpha}"
+        momenta_title = title
         I_list, M, R = example.Itensor[None], M[:, None], R[:, None]  # one body
 
     if boxes:
@@ -323,9 +365,11 @@ def create_animations(
             energy,
             f"{outdir}/{momentum_frame}_momenta_{method.short_name}.mp4",
             momentum_frame,
-            title,
+            momenta_title,
             fps,
             speedup,
             video=video,
             stills=stills,
+            legend=not isinstance(example, LatticeExample),
+            crop=isinstance(example, LatticeExample),
         )
